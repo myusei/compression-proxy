@@ -1,0 +1,14 @@
+[Unit]
+Description = mitmdump
+After = network.target
+
+[Service]
+Type = simple
+User = root
+ExecStart = /usr/local/bin/mitmdump -p 8081 -s /usr/local/bin/mitm_filter.py --ssl-insecure --ignore-hosts '(5ch.net|gpskeeper.popinfo.jp|fusioncom.co.jp|clients4.google.com|mobilesuica.com|mobile.rakuten.co.jp)' --anticomp 
+Restart = on-failure 
+
+[Install]
+WantedBy=multi-user.target
+ 
+
