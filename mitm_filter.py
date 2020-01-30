@@ -13,7 +13,7 @@ def measure(func):
         ct = args[0].response.headers["content-type"]
         ct = ct[0:10]
         with open(path, mode='a') as f:
-            f.write(f'type:{ct}\tcompressed:{after / before :.2%}\treduced:{before - after}\tsource:{before}\ttime:{end - start:.5f}\n') 
+            f.write(f'type:{ct}\tcompressed:{after / before :.2%}\treduced:{before - after}\tsource:{before}\ttime:{end - start:.5f}\n')
         return flow
     return _measure
 
@@ -51,28 +51,26 @@ def compress_jpeg(flow):
     flow.response.content = content_binary.getvalue()
     return flow
 
-@measure
+# @measure
 def compress(flow):
     if "content-type" in flow.response.headers and "content-length" in flow.response.headers:
         ct = str(flow.response.headers["content-type"])
         cl = int(flow.response.headers["content-length"])
-        if (cl) > 256:
+        if (cl) > 1024:
             if (ct) [0:6] == ("image/") and (ct) [0:9] != ("image/svg"):
                 if (ct) [0:9] == ("image/png"):
                     flow = compress_png(flow)
                 else:
                     flow = compress_jpeg(flow)
             elif flow.request.scheme == "http" and not "content-encoding" in flow.response.headers:
-                flow.response.headers["content-encoding"] = "none"     
+                flow.response.headers["content-encoding"] = "none"
                 if (ct) [0:5] == ("text/") or (ct) [0:12] == ("application/") or (ct) [0:9] == ("image/svg"):
                     flow = compress_gzip(flow)
             elif flow.request.scheme == "https" and not "content-encoding" in flow.response.headers:
                 flow.response.headers["content-encoding"] = "none"
-                #if (ct) [0:5] == ("text/") and (ct) [0:10] != ("text/plain") and (ct) [0:9] != ("text/html") or (ct) [0:12] == ("application/") and (ct) [0:16] != ("application/json") or (ct) [0:9] == ("image/svg"):
-                if (ct) [0:5] == ("text/") or (ct) [0:12] == ("application/") or (ct) [0:9] == ("image/svg"): 
+                if (ct) [0:5] == ("text/") or (ct) [0:12] == ("application/") or (ct) [0:9] == ("image/svg"):
                     flow = compress_brotli(flow)
     return flow
 
 def response(flow):
     flow = compress(flow)
-
